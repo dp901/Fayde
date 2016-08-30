@@ -1,7 +1,4 @@
 declare module Fayde {
-    var version: string;
-}
-declare module Fayde {
     class ThemedLibrary extends nullstone.Library {
         private $$themes;
         private $$activeTheme;
@@ -1580,6 +1577,8 @@ declare module Fayde.Controls {
         OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
         OnMouseEnter(e: Input.MouseEventArgs): void;
         OnMouseLeave(e: Input.MouseEventArgs): void;
+        OnTouchMove(e: Input.TouchEventArgs): void;
+        OnTouchDown(e: Input.TouchEventArgs): void;
         OnKeyDown(e: Input.KeyEventArgs): void;
         private _CheckWatermarkVisibility();
         OnGotFocus(e: RoutedEventArgs): void;
@@ -1606,6 +1605,9 @@ declare module Fayde.Controls {
         OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs): void;
         OnMouseEnter(e: Input.MouseEventArgs): void;
         OnMouseLeave(e: Input.MouseEventArgs): void;
+        OnTouchMove(e: Input.TouchEventArgs): void;
+        OnTouchDown(e: Input.TouchEventArgs): void;
+        OnTouchUp(e: Input.TouchEventArgs): void;
         OnGotFocus(e: RoutedEventArgs): void;
         OnLostFocus(e: RoutedEventArgs): void;
         GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
@@ -1616,6 +1618,7 @@ declare module Fayde.Controls {
     class ComboBoxItem extends ListBoxItem {
         constructor();
         OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs): void;
+        OnTouchUp(e: Input.TouchEventArgs): void;
     }
 }
 declare module Fayde.Markup {
@@ -2377,6 +2380,134 @@ declare module Fayde.Controls {
         OnItemsRemoved(index: number, oldItems: any[]): void;
     }
 }
+declare module Fayde.Data {
+    var WarnBrokenPath: boolean;
+    class Binding implements nullstone.markup.IMarkupExtension, ICloneable {
+        StringFormat: string;
+        FallbackValue: any;
+        TargetNullValue: any;
+        BindsDirectlyToSource: boolean;
+        Converter: IValueConverter;
+        ConverterParameter: any;
+        ConverterCulture: any;
+        ElementName: string;
+        Mode: BindingMode;
+        NotifyOnValidationError: boolean;
+        RelativeSource: RelativeSource;
+        Path: Data.PropertyPath;
+        Source: any;
+        UpdateSourceTrigger: UpdateSourceTrigger;
+        ValidatesOnExceptions: boolean;
+        ValidatesOnDataErrors: boolean;
+        ValidatesOnNotifyDataErrors: boolean;
+        constructor();
+        constructor(path: string | Data.PropertyPath);
+        constructor(binding: Binding);
+        init(val: string): void;
+        transmute(os: any[]): any;
+        private $$coerce();
+        Clone(): Binding;
+        static fromData(data: IBindingData): Binding;
+    }
+}
+declare module Fayde.Data {
+    class CollectionViewSource extends DependencyObject {
+        static SourceProperty: DependencyProperty;
+        static ViewProperty: DependencyProperty;
+        Source: any;
+        View: ICollectionView;
+    }
+}
+declare module Fayde.Data {
+    class DataErrorsChangedEventArgs implements nullstone.IEventArgs {
+        PropertyName: string;
+        constructor(propertyName: string);
+    }
+}
+declare module Fayde.Data {
+    enum RelativeSourceMode {
+        TemplatedParent = 0,
+        Self = 1,
+        FindAncestor = 2,
+        ItemsControlParent = 3,
+    }
+    enum BindingMode {
+        OneWay = 0,
+        TwoWay = 1,
+        OneTime = 2,
+        OneWayToSource = 3,
+    }
+    enum UpdateSourceTrigger {
+        Default = 0,
+        PropertyChanged = 1,
+        Explicit = 3,
+    }
+}
+declare module Fayde.Data {
+    interface IBindingData {
+        Path: string | Data.PropertyPath;
+        StringFormat?: string;
+        FallbackValue?: any;
+        TargetNullValue?: any;
+        BindsDirectlyToSource?: boolean;
+        Converter?: IValueConverter;
+        ConverterParameter?: any;
+        ConverterCulture?: any;
+        ElementName?: string;
+        Mode?: BindingMode;
+        NotifyOnValidationError?: boolean;
+        RelativeSource?: RelativeSource;
+        Source?: any;
+        UpdateSourceTrigger?: UpdateSourceTrigger;
+        ValidatesOnExceptions?: boolean;
+        ValidatesOnDataErrors?: boolean;
+        ValidatesOnNotifyDataErrors?: boolean;
+    }
+}
+declare module Fayde.Data {
+    interface ICollectionView extends nullstone.IEnumerable<any> {
+        CurrentChanged: nullstone.Event<nullstone.IEventArgs>;
+        CurrentItem: any;
+        MoveCurrentTo(item: any): boolean;
+    }
+    var ICollectionView_: nullstone.Interface<ICollectionView>;
+}
+declare module Fayde.Data {
+    interface IDataErrorInfo {
+        Error: string;
+        GetError(propertyName: string): string;
+    }
+    var IDataErrorInfo_: nullstone.Interface<IDataErrorInfo>;
+}
+declare module Fayde.Data {
+    interface INotifyDataErrorInfo {
+        ErrorsChanged: nullstone.Event<DataErrorsChangedEventArgs>;
+        GetErrors(propertyName: string): nullstone.IEnumerable<any>;
+        HasErrors: boolean;
+    }
+    var INotifyDataErrorInfo_: nullstone.Interface<INotifyDataErrorInfo>;
+}
+declare module Fayde.Data {
+    interface IValueConverter {
+        Convert(value: any, targetType: IType, parameter: any, culture: any): any;
+        ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
+    }
+    var IValueConverter_: nullstone.Interface<IValueConverter>;
+}
+declare module Fayde.Data {
+    class RelativeSource implements nullstone.markup.IMarkupExtension, ICloneable {
+        Mode: RelativeSourceMode;
+        AncestorLevel: number;
+        AncestorType: Function;
+        constructor();
+        constructor(rs: RelativeSource);
+        init(val: string): void;
+        resolveTypeFields(resolver: (full: string) => any): void;
+        transmute(os: any[]): any;
+        Clone(): RelativeSource;
+        Find(target: XamlObject): XamlObject;
+    }
+}
 interface ICloneable {
     Clone(): any;
 }
@@ -2616,134 +2747,6 @@ declare module Fayde {
         constructor(root: UINode, cur: UINode, forwards: boolean);
         FocusChild(): boolean;
         static Focus(uin: UINode, forwards?: boolean): boolean;
-    }
-}
-declare module Fayde.Data {
-    var WarnBrokenPath: boolean;
-    class Binding implements nullstone.markup.IMarkupExtension, ICloneable {
-        StringFormat: string;
-        FallbackValue: any;
-        TargetNullValue: any;
-        BindsDirectlyToSource: boolean;
-        Converter: IValueConverter;
-        ConverterParameter: any;
-        ConverterCulture: any;
-        ElementName: string;
-        Mode: BindingMode;
-        NotifyOnValidationError: boolean;
-        RelativeSource: RelativeSource;
-        Path: Data.PropertyPath;
-        Source: any;
-        UpdateSourceTrigger: UpdateSourceTrigger;
-        ValidatesOnExceptions: boolean;
-        ValidatesOnDataErrors: boolean;
-        ValidatesOnNotifyDataErrors: boolean;
-        constructor();
-        constructor(path: string | Data.PropertyPath);
-        constructor(binding: Binding);
-        init(val: string): void;
-        transmute(os: any[]): any;
-        private $$coerce();
-        Clone(): Binding;
-        static fromData(data: IBindingData): Binding;
-    }
-}
-declare module Fayde.Data {
-    class CollectionViewSource extends DependencyObject {
-        static SourceProperty: DependencyProperty;
-        static ViewProperty: DependencyProperty;
-        Source: any;
-        View: ICollectionView;
-    }
-}
-declare module Fayde.Data {
-    class DataErrorsChangedEventArgs implements nullstone.IEventArgs {
-        PropertyName: string;
-        constructor(propertyName: string);
-    }
-}
-declare module Fayde.Data {
-    enum RelativeSourceMode {
-        TemplatedParent = 0,
-        Self = 1,
-        FindAncestor = 2,
-        ItemsControlParent = 3,
-    }
-    enum BindingMode {
-        OneWay = 0,
-        TwoWay = 1,
-        OneTime = 2,
-        OneWayToSource = 3,
-    }
-    enum UpdateSourceTrigger {
-        Default = 0,
-        PropertyChanged = 1,
-        Explicit = 3,
-    }
-}
-declare module Fayde.Data {
-    interface IBindingData {
-        Path: string | Data.PropertyPath;
-        StringFormat?: string;
-        FallbackValue?: any;
-        TargetNullValue?: any;
-        BindsDirectlyToSource?: boolean;
-        Converter?: IValueConverter;
-        ConverterParameter?: any;
-        ConverterCulture?: any;
-        ElementName?: string;
-        Mode?: BindingMode;
-        NotifyOnValidationError?: boolean;
-        RelativeSource?: RelativeSource;
-        Source?: any;
-        UpdateSourceTrigger?: UpdateSourceTrigger;
-        ValidatesOnExceptions?: boolean;
-        ValidatesOnDataErrors?: boolean;
-        ValidatesOnNotifyDataErrors?: boolean;
-    }
-}
-declare module Fayde.Data {
-    interface ICollectionView extends nullstone.IEnumerable<any> {
-        CurrentChanged: nullstone.Event<nullstone.IEventArgs>;
-        CurrentItem: any;
-        MoveCurrentTo(item: any): boolean;
-    }
-    var ICollectionView_: nullstone.Interface<ICollectionView>;
-}
-declare module Fayde.Data {
-    interface IDataErrorInfo {
-        Error: string;
-        GetError(propertyName: string): string;
-    }
-    var IDataErrorInfo_: nullstone.Interface<IDataErrorInfo>;
-}
-declare module Fayde.Data {
-    interface INotifyDataErrorInfo {
-        ErrorsChanged: nullstone.Event<DataErrorsChangedEventArgs>;
-        GetErrors(propertyName: string): nullstone.IEnumerable<any>;
-        HasErrors: boolean;
-    }
-    var INotifyDataErrorInfo_: nullstone.Interface<INotifyDataErrorInfo>;
-}
-declare module Fayde.Data {
-    interface IValueConverter {
-        Convert(value: any, targetType: IType, parameter: any, culture: any): any;
-        ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
-    }
-    var IValueConverter_: nullstone.Interface<IValueConverter>;
-}
-declare module Fayde.Data {
-    class RelativeSource implements nullstone.markup.IMarkupExtension, ICloneable {
-        Mode: RelativeSourceMode;
-        AncestorLevel: number;
-        AncestorType: Function;
-        constructor();
-        constructor(rs: RelativeSource);
-        init(val: string): void;
-        resolveTypeFields(resolver: (full: string) => any): void;
-        transmute(os: any[]): any;
-        Clone(): RelativeSource;
-        Find(target: XamlObject): XamlObject;
     }
 }
 declare module Fayde.Documents {
@@ -3082,6 +3085,217 @@ declare module Fayde {
     var DEFAULT_THEME_NAME: string;
     var ThemeManager: IThemeManager;
 }
+declare class TimeSpan {
+    static _TicksPerMillisecond: number;
+    static _TicksPerSecond: number;
+    static _TicksPerMinute: number;
+    static _TicksPerHour: number;
+    static _TicksPerDay: number;
+    private _Ticks;
+    static Zero: TimeSpan;
+    static MinValue: TimeSpan;
+    static MaxValue: TimeSpan;
+    static FromDays(value: number): TimeSpan;
+    static FromHours(value: number): TimeSpan;
+    static FromMinutes(value: number): TimeSpan;
+    static FromSeconds(value: number): TimeSpan;
+    static FromMilliseconds(value: number): TimeSpan;
+    constructor();
+    constructor(ticks: number);
+    constructor(hours: number, minutes: number, seconds: number);
+    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
+    Days: number;
+    Hours: number;
+    Minutes: number;
+    Seconds: number;
+    Milliseconds: number;
+    Ticks: number;
+    TotalDays: number;
+    TotalHours: number;
+    TotalMinutes: number;
+    TotalSeconds: number;
+    TotalMilliseconds: number;
+    AddTicks(ticks: number): void;
+    AddMilliseconds(milliseconds: number): void;
+    Add(ts2: TimeSpan): TimeSpan;
+    Subtract(ts2: TimeSpan): TimeSpan;
+    Multiply(v: number): TimeSpan;
+    Divide(ts2: TimeSpan): TimeSpan;
+    CompareTo(ts2: TimeSpan): number;
+    IsZero(): boolean;
+    GetJsDelay(): number;
+    toString(format?: string): string;
+    valueOf(): Object;
+}
+declare enum DayOfWeek {
+    Sunday = 0,
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+}
+declare enum DateTimeKind {
+    Unspecified = 0,
+    Local = 1,
+    Utc = 2,
+}
+declare class DateTime {
+    private static MAX_TICKS;
+    private static MIN_TICKS;
+    static MinValue: DateTime;
+    static MaxValue: DateTime;
+    static Now: DateTime;
+    static Today: DateTime;
+    static Compare(dt1: DateTime, dt2: DateTime): number;
+    static DaysInMonth(year: number, month: number): number;
+    private _InternalDate;
+    private _Kind;
+    constructor();
+    constructor(dt: Date);
+    constructor(dt: Date, kind: DateTimeKind);
+    constructor(ticks: number);
+    constructor(ticks: number, kind: DateTimeKind);
+    constructor(year: number, month: number, day: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
+    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
+    Ticks: number;
+    Kind: DateTimeKind;
+    Date: DateTime;
+    Day: number;
+    DayOfWeek: DayOfWeek;
+    DayOfYear: number;
+    Hour: number;
+    Millisecond: number;
+    Minute: number;
+    Month: number;
+    Second: number;
+    TimeOfDay: TimeSpan;
+    Year: number;
+    AddYears(years: number): DateTime;
+    AddMonths(months: number): DateTime;
+    AddDays(value: number): DateTime;
+    AddHours(value: number): DateTime;
+    AddMinutes(value: number): DateTime;
+    AddSeconds(value: number): DateTime;
+    AddMilliseconds(value: number): DateTime;
+    Add(value: TimeSpan): DateTime;
+    AddTicks(value: number): DateTime;
+    Subtract(value: DateTime): TimeSpan;
+    Subtract(value: TimeSpan): DateTime;
+    ToUniversalTime(): DateTime;
+    toString(format?: string): string;
+    valueOf(): Object;
+}
+declare module Fayde.Localization {
+    class Calendar {
+        ID: number;
+        Eras: number[];
+        EraNames: string[];
+        CurrentEraValue: number;
+        TwoDigitYearMax: number;
+        MaxSupportedDateTime: DateTime;
+        MinSupportedDateTime: DateTime;
+    }
+}
+declare module Fayde.Localization {
+    enum CalendarWeekRule {
+        FirstDay = 0,
+        FirstFullWeek = 1,
+        FirstFourDayWeek = 2,
+    }
+    class DateTimeFormatInfo {
+        AbbreviatedDayNames: string[];
+        AbbreviatedMonthGenitiveNames: string[];
+        AbbreviatedMonthNames: string[];
+        AMDesignator: string;
+        Calendar: Calendar;
+        CalendarWeekRule: CalendarWeekRule;
+        DateSeparator: string;
+        DayNames: string[];
+        FirstDayOfWeek: DayOfWeek;
+        FullDateTimePattern: string;
+        LongDatePattern: string;
+        LongTimePattern: string;
+        MonthDayPattern: string;
+        MonthGenitiveNames: string[];
+        MonthNames: string[];
+        PMDesignator: string;
+        RFC1123Pattern: string;
+        ShortDatePattern: string;
+        ShortestDayNames: string[];
+        ShortTimePattern: string;
+        SortableDateTimePattern: string;
+        TimeSeparator: string;
+        UniversalSortableDateTimePattern: string;
+        YearMonthPattern: string;
+        HasForceTwoDigitYears: boolean;
+        GetEraName(era: number): string;
+        static Instance: DateTimeFormatInfo;
+        static ParseRepeatPattern(format: string, pos: number, patternChar: string): number;
+        static ParseNextChar(format: string, pos: number): number;
+        static ParseQuoteString(format: string, pos: number, result: string[]): number;
+        static FormatDigits(sb: string[], value: number, len: number, overrideLenLimit?: boolean): void;
+        static FormatMonth(month: number, repeat: number, info: DateTimeFormatInfo): string;
+        static FormatDayOfWeek(dayOfWeek: DayOfWeek, repeat: number, info: DateTimeFormatInfo): string;
+        static HebrewFormatDigits(sb: string[], digits: number): string;
+        static FormatHebrewMonthName(obj: DateTime, month: number, repeat: number, info: DateTimeFormatInfo): string;
+    }
+}
+declare module Fayde.Localization {
+    function Format(format: string, ...items: any[]): string;
+    function FormatSingle(obj: any, format: string): string;
+    interface IFormattable {
+        (obj: any, format: string, provider?: any): string;
+    }
+    function RegisterFormattable(type: Function, formatter: IFormattable): void;
+}
+declare module Fayde.Localization {
+}
+declare module Fayde.Localization {
+    class NumberFormatInfo {
+        CurrencyDecimalDigits: number;
+        CurrencyDecimalSeparator: string;
+        CurrencyGroupSeparator: string;
+        CurrencyGroupSizes: number[];
+        CurrencyNegativePattern: number;
+        CurrencyPositivePattern: number;
+        CurrencySymbol: string;
+        NaNSymbol: string;
+        NegativeInfinitySymbol: string;
+        PositiveInfinitySymbol: string;
+        NegativeSign: string;
+        PositiveSign: string;
+        NumberDecimalDigits: number;
+        NumberDecimalSeparator: string;
+        NumberGroupSeparator: string;
+        NumberGroupSizes: number[];
+        NumberNegativePattern: number;
+        PercentDecimalDigits: number;
+        PercentDecimalSeparator: string;
+        PercentGroupSeparator: string;
+        PercentGroupSizes: number[];
+        PercentNegativePattern: number;
+        PercentPositivePattern: number;
+        PercentSymbol: string;
+        PerMilleSymbol: string;
+        static Instance: NumberFormatInfo;
+        FormatCurrency(num: number, precision: number): string;
+        FormatNumber(num: number, precision: number, ignoreGroupSep?: boolean): string;
+        FormatPercent(num: number, precision: number): string;
+        FormatGeneral(num: number, precision: number): string;
+        FormatDecimal(num: number, precision: number): string;
+        FormatExponential(num: number, precision: number): string;
+        FormatHexadecimal(num: number, precision: number): string;
+        FormatRawNumber(num: number, precision: number, decSep: string, groupSep: string, groupSizes: number[]): string;
+    }
+}
+declare module Fayde.Localization {
+}
+declare module Fayde.Localization {
+}
 declare module Fayde {
     class Expression {
         IsUpdating: boolean;
@@ -3315,217 +3529,6 @@ declare module Fayde.Input {
         static Init(): void;
         static Launch(): void;
     }
-}
-declare class TimeSpan {
-    static _TicksPerMillisecond: number;
-    static _TicksPerSecond: number;
-    static _TicksPerMinute: number;
-    static _TicksPerHour: number;
-    static _TicksPerDay: number;
-    private _Ticks;
-    static Zero: TimeSpan;
-    static MinValue: TimeSpan;
-    static MaxValue: TimeSpan;
-    static FromDays(value: number): TimeSpan;
-    static FromHours(value: number): TimeSpan;
-    static FromMinutes(value: number): TimeSpan;
-    static FromSeconds(value: number): TimeSpan;
-    static FromMilliseconds(value: number): TimeSpan;
-    constructor();
-    constructor(ticks: number);
-    constructor(hours: number, minutes: number, seconds: number);
-    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds?: number);
-    Days: number;
-    Hours: number;
-    Minutes: number;
-    Seconds: number;
-    Milliseconds: number;
-    Ticks: number;
-    TotalDays: number;
-    TotalHours: number;
-    TotalMinutes: number;
-    TotalSeconds: number;
-    TotalMilliseconds: number;
-    AddTicks(ticks: number): void;
-    AddMilliseconds(milliseconds: number): void;
-    Add(ts2: TimeSpan): TimeSpan;
-    Subtract(ts2: TimeSpan): TimeSpan;
-    Multiply(v: number): TimeSpan;
-    Divide(ts2: TimeSpan): TimeSpan;
-    CompareTo(ts2: TimeSpan): number;
-    IsZero(): boolean;
-    GetJsDelay(): number;
-    toString(format?: string): string;
-    valueOf(): Object;
-}
-declare enum DayOfWeek {
-    Sunday = 0,
-    Monday = 1,
-    Tuesday = 2,
-    Wednesday = 3,
-    Thursday = 4,
-    Friday = 5,
-    Saturday = 6,
-}
-declare enum DateTimeKind {
-    Unspecified = 0,
-    Local = 1,
-    Utc = 2,
-}
-declare class DateTime {
-    private static MAX_TICKS;
-    private static MIN_TICKS;
-    static MinValue: DateTime;
-    static MaxValue: DateTime;
-    static Now: DateTime;
-    static Today: DateTime;
-    static Compare(dt1: DateTime, dt2: DateTime): number;
-    static DaysInMonth(year: number, month: number): number;
-    private _InternalDate;
-    private _Kind;
-    constructor();
-    constructor(dt: Date);
-    constructor(dt: Date, kind: DateTimeKind);
-    constructor(ticks: number);
-    constructor(ticks: number, kind: DateTimeKind);
-    constructor(year: number, month: number, day: number);
-    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number);
-    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number);
-    constructor(year: number, month: number, day: number, hour: number, minute: number, second: number, millisecond: number, kind: DateTimeKind);
-    Ticks: number;
-    Kind: DateTimeKind;
-    Date: DateTime;
-    Day: number;
-    DayOfWeek: DayOfWeek;
-    DayOfYear: number;
-    Hour: number;
-    Millisecond: number;
-    Minute: number;
-    Month: number;
-    Second: number;
-    TimeOfDay: TimeSpan;
-    Year: number;
-    AddYears(years: number): DateTime;
-    AddMonths(months: number): DateTime;
-    AddDays(value: number): DateTime;
-    AddHours(value: number): DateTime;
-    AddMinutes(value: number): DateTime;
-    AddSeconds(value: number): DateTime;
-    AddMilliseconds(value: number): DateTime;
-    Add(value: TimeSpan): DateTime;
-    AddTicks(value: number): DateTime;
-    Subtract(value: DateTime): TimeSpan;
-    Subtract(value: TimeSpan): DateTime;
-    ToUniversalTime(): DateTime;
-    toString(format?: string): string;
-    valueOf(): Object;
-}
-declare module Fayde.Localization {
-    class Calendar {
-        ID: number;
-        Eras: number[];
-        EraNames: string[];
-        CurrentEraValue: number;
-        TwoDigitYearMax: number;
-        MaxSupportedDateTime: DateTime;
-        MinSupportedDateTime: DateTime;
-    }
-}
-declare module Fayde.Localization {
-    enum CalendarWeekRule {
-        FirstDay = 0,
-        FirstFullWeek = 1,
-        FirstFourDayWeek = 2,
-    }
-    class DateTimeFormatInfo {
-        AbbreviatedDayNames: string[];
-        AbbreviatedMonthGenitiveNames: string[];
-        AbbreviatedMonthNames: string[];
-        AMDesignator: string;
-        Calendar: Calendar;
-        CalendarWeekRule: CalendarWeekRule;
-        DateSeparator: string;
-        DayNames: string[];
-        FirstDayOfWeek: DayOfWeek;
-        FullDateTimePattern: string;
-        LongDatePattern: string;
-        LongTimePattern: string;
-        MonthDayPattern: string;
-        MonthGenitiveNames: string[];
-        MonthNames: string[];
-        PMDesignator: string;
-        RFC1123Pattern: string;
-        ShortDatePattern: string;
-        ShortestDayNames: string[];
-        ShortTimePattern: string;
-        SortableDateTimePattern: string;
-        TimeSeparator: string;
-        UniversalSortableDateTimePattern: string;
-        YearMonthPattern: string;
-        HasForceTwoDigitYears: boolean;
-        GetEraName(era: number): string;
-        static Instance: DateTimeFormatInfo;
-        static ParseRepeatPattern(format: string, pos: number, patternChar: string): number;
-        static ParseNextChar(format: string, pos: number): number;
-        static ParseQuoteString(format: string, pos: number, result: string[]): number;
-        static FormatDigits(sb: string[], value: number, len: number, overrideLenLimit?: boolean): void;
-        static FormatMonth(month: number, repeat: number, info: DateTimeFormatInfo): string;
-        static FormatDayOfWeek(dayOfWeek: DayOfWeek, repeat: number, info: DateTimeFormatInfo): string;
-        static HebrewFormatDigits(sb: string[], digits: number): string;
-        static FormatHebrewMonthName(obj: DateTime, month: number, repeat: number, info: DateTimeFormatInfo): string;
-    }
-}
-declare module Fayde.Localization {
-    function Format(format: string, ...items: any[]): string;
-    function FormatSingle(obj: any, format: string): string;
-    interface IFormattable {
-        (obj: any, format: string, provider?: any): string;
-    }
-    function RegisterFormattable(type: Function, formatter: IFormattable): void;
-}
-declare module Fayde.Localization {
-}
-declare module Fayde.Localization {
-    class NumberFormatInfo {
-        CurrencyDecimalDigits: number;
-        CurrencyDecimalSeparator: string;
-        CurrencyGroupSeparator: string;
-        CurrencyGroupSizes: number[];
-        CurrencyNegativePattern: number;
-        CurrencyPositivePattern: number;
-        CurrencySymbol: string;
-        NaNSymbol: string;
-        NegativeInfinitySymbol: string;
-        PositiveInfinitySymbol: string;
-        NegativeSign: string;
-        PositiveSign: string;
-        NumberDecimalDigits: number;
-        NumberDecimalSeparator: string;
-        NumberGroupSeparator: string;
-        NumberGroupSizes: number[];
-        NumberNegativePattern: number;
-        PercentDecimalDigits: number;
-        PercentDecimalSeparator: string;
-        PercentGroupSeparator: string;
-        PercentGroupSizes: number[];
-        PercentNegativePattern: number;
-        PercentPositivePattern: number;
-        PercentSymbol: string;
-        PerMilleSymbol: string;
-        static Instance: NumberFormatInfo;
-        FormatCurrency(num: number, precision: number): string;
-        FormatNumber(num: number, precision: number, ignoreGroupSep?: boolean): string;
-        FormatPercent(num: number, precision: number): string;
-        FormatGeneral(num: number, precision: number): string;
-        FormatDecimal(num: number, precision: number): string;
-        FormatExponential(num: number, precision: number): string;
-        FormatHexadecimal(num: number, precision: number): string;
-        FormatRawNumber(num: number, precision: number, decSep: string, groupSep: string, groupSizes: number[]): string;
-    }
-}
-declare module Fayde.Localization {
-}
-declare module Fayde.Localization {
 }
 declare module Fayde.MVVM {
     interface IValidationFunc {
@@ -5027,42 +5030,6 @@ declare module Fayde.Controls.Primitives {
         UpdateCollectionView(item: any): boolean;
     }
 }
-declare module Fayde.Providers {
-    enum StyleIndex {
-        VisualTree = 0,
-        ApplicationResources = 1,
-        Theme = 2,
-        Count = 3,
-    }
-    enum StyleMask {
-        None = 0,
-        VisualTree = 1,
-        ApplicationResources = 2,
-        Theme = 4,
-        All = 7,
-    }
-    interface IImplicitStyleHolder {
-        _ImplicitStyles: Style[];
-        _StyleMask: number;
-    }
-    class ImplicitStyleBroker {
-        static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]): void;
-        private static SetImpl(fe, mask, styles);
-        static Clear(fe: FrameworkElement, mask: StyleMask): void;
-        private static ApplyStyles(fe, mask, styles);
-    }
-}
-declare module Fayde.Providers {
-    interface IStyleHolder {
-        _LocalStyle: Style;
-    }
-    class LocalStyleBroker {
-        static Set(fe: FrameworkElement, newStyle: Style): void;
-    }
-}
-declare module Fayde.Providers {
-    function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker, isImplicit: boolean): void;
-}
 declare module Fayde.Data {
     interface IOutValue {
         Value: any;
@@ -5143,6 +5110,42 @@ declare module Fayde.Data {
         ValueChanged(node: IPropertyPathNode): void;
         GetContext(): any;
     }
+}
+declare module Fayde.Providers {
+    enum StyleIndex {
+        VisualTree = 0,
+        ApplicationResources = 1,
+        Theme = 2,
+        Count = 3,
+    }
+    enum StyleMask {
+        None = 0,
+        VisualTree = 1,
+        ApplicationResources = 2,
+        Theme = 4,
+        All = 7,
+    }
+    interface IImplicitStyleHolder {
+        _ImplicitStyles: Style[];
+        _StyleMask: number;
+    }
+    class ImplicitStyleBroker {
+        static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]): void;
+        private static SetImpl(fe, mask, styles);
+        static Clear(fe: FrameworkElement, mask: StyleMask): void;
+        private static ApplyStyles(fe, mask, styles);
+    }
+}
+declare module Fayde.Providers {
+    interface IStyleHolder {
+        _LocalStyle: Style;
+    }
+    class LocalStyleBroker {
+        static Set(fe: FrameworkElement, newStyle: Style): void;
+    }
+}
+declare module Fayde.Providers {
+    function SwapStyles(fe: FrameworkElement, oldWalker: IStyleWalker, newWalker: IStyleWalker, isImplicit: boolean): void;
 }
 declare module Fayde.Input.TouchInternal {
     interface ITouchHandler {
